@@ -1,8 +1,9 @@
 #include <iostream>
-#include <test.hpp>
 #include <graph.hpp>
 
 int main(){
-    std::cout << whisper() << '\n';
+
+    local::BipCompGraph g(std::cin);
+    std::cout << g << '\n';
     return 0;
 }
