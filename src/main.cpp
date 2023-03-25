@@ -7,7 +7,6 @@ int main() {
     local::BipCompGraph g(std::cin, transformation);
     std::vector<int> m(g.nodes_count, static_cast<int>(local::MagicNodes::NULL_NODE));
     g.getMaximumPerfectMatching(m);
-//    std::cout << g << '\n';
     int32_t sum = 0;
     for (int i = 0; i < g.nodes_count / 2; ++i)
         if (m[i] != static_cast<int32_t>(local::MagicNodes::NULL_NODE)) {
@@ -15,6 +14,6 @@ int main() {
             sum += g.get_weight_raw(i, m[i]);
         } else
             std::cout << i << " is not matched\n";
-    std::cout << "Maximum matching is: " << sum << '\n';
+    std::cout << "Maximum matching is: " << (-sum) << '\n';
     return 0;
 }
