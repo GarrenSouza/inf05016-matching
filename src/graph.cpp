@@ -47,6 +47,7 @@ std::ostream &operator<<(std::ostream &os, const local::edge_to &edgeTo) {
 
 std::ostream &operator<<(std::ostream &os, const local::vertex &dt) {
     os << "{";
+    os << "id: " << dt.id << ",\n";
     os << "free: " << dt._free << ",\n";
     os << "potential: " << dt._potential << ",\n";
     os << "}";
@@ -132,33 +133,27 @@ local::BipCompGraph::Partition local::BipCompGraph::getPartition(int n) const {
 
 void local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
 
-    BipCompGraph g = *this;
+    BipCompGraph &g = *this;
 
     vertex *closest_free_node;
-    int32_t net_score;
 
     std::vector<int32_t> predecessor(g.nodes_count, static_cast<int32_t>(MagicNodes::NULL_NODE));
 
-    do {
-        closest_free_node = g.get_augmenting_path_end_node(predecessor, matching);
-
-        if (closest_free_node &&
-            (net_score = g.net_score_over_new_augmenting_path(static_cast<int32_t>(MagicNodes::NULL_NODE),
-                                                              closest_free_node->id,
-                                                              predecessor, matching)) > 0) {
-            g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE),
-                              closest_free_node->id, predecessor,
-                              matching);
-            g.update_potentials();
-        } else {
-            break;
-        }
-    } while (net_score > 0);
+    while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching)) &&
+           g.net_score_over_new_augmenting_path(static_cast<int32_t>(MagicNodes::NULL_NODE),
+                                                closest_free_node->id,
+                                                predecessor, matching) > 0) {
+        g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE),
+                          closest_free_node->id,
+                          predecessor,
+                          matching);
+        g.update_potentials();
+    }
 }
 
 void local::BipCompGraph::getMaximumPerfectMatching(std::vector<int32_t> &matching) {
 
-    BipCompGraph g = *this;
+    BipCompGraph &g = *this;
 
     vertex *closest_free_node;
 
@@ -167,7 +162,8 @@ void local::BipCompGraph::getMaximumPerfectMatching(std::vector<int32_t> &matchi
     while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching))) {
         g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE),
                           closest_free_node->id,
-                          predecessor, matching);
+                          predecessor,
+                          matching);
         g.update_potentials();
     }
 }
@@ -191,13 +187,9 @@ void local::BipCompGraph::update_matching(int32_t s,
                                           int32_t t,
                                           const std::vector<int32_t> &pred,
                                           std::vector<int32_t> &match) {
-    bool new_path = true;
-    for (int i = t; pred[i] != s; i = pred[i]) {
-        if (new_path) {
-            match[i] = pred[i];
-            match[pred[i]] = i;
-        }
-        new_path = !new_path;
+    for (int i = t; i != s; i = pred[pred[i]]) {
+        match[i] = pred[i];
+        match[pred[i]] = i;
     }
 }
 

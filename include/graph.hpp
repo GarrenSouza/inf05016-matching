@@ -27,7 +27,7 @@ namespace local {
         int32_t id, _potential;
         bool _free;
 
-        vertex() : id(static_cast<int> (MagicNodes::NULL_NODE)),
+        vertex() : id(static_cast<int32_t> (MagicNodes::NULL_NODE)),
                    _potential(0),
                    _free(true) {}
     };
