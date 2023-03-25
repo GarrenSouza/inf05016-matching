@@ -192,7 +192,7 @@ void local::BipCompGraph::update_matching(int32_t s,
                                           const std::vector<int32_t> &pred,
                                           std::vector<int32_t> &match) {
     bool new_path = true;
-    for (int i = t; pred[i] != static_cast<int32_t>(MagicNodes::NULL_NODE); i = pred[i]) {
+    for (int i = t; pred[i] != s; i = pred[i]) {
         if (new_path) {
             match[i] = pred[i];
             match[pred[i]] = i;
