@@ -54,7 +54,7 @@ namespace local {
 
         int32_t get_weight_johnson(int32_t u, int32_t v, std::vector<int32_t> &matching);
 
-        int32_t get_weight(int32_t u, int32_t v, std::vector<int32_t> &current_matching);
+        int32_t get_weight(int32_t u, int32_t v, bool matched);
 
         friend std::ostream &operator<<(std::ostream &os, const BipCompGraph &graph);
 

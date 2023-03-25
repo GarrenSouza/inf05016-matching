@@ -131,12 +131,11 @@ local::BipCompGraph::Partition local::BipCompGraph::getPartition(int n) const {
 }
 
 void local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
-    // non-destructive
+
     BipCompGraph g = *this;
 
-    int32_t net_score;
-
     vertex *closest_free_node;
+    int32_t net_score;
 
     std::vector<int32_t> predecessor(g.nodes_count, static_cast<int32_t>(MagicNodes::NULL_NODE));
 
@@ -147,25 +146,28 @@ void local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
             (net_score = g.net_score_over_new_augmenting_path(static_cast<int32_t>(MagicNodes::NULL_NODE),
                                                               closest_free_node->id,
                                                               predecessor, matching)) > 0) {
-            g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE), closest_free_node->id, predecessor,
+            g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE),
+                              closest_free_node->id, predecessor,
                               matching);
             g.update_potentials();
         } else {
             break;
         }
-    } while (net_score >= 0);
+    } while (net_score > 0);
 }
 
 void local::BipCompGraph::getMaximumPerfectMatching(std::vector<int32_t> &matching) {
 
-    // non-destructive
     BipCompGraph g = *this;
 
     vertex *closest_free_node;
 
     std::vector<int32_t> predecessor(nodes_count, static_cast<int32_t>(MagicNodes::NULL_NODE));
+
     while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching))) {
-        g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE), closest_free_node->id, predecessor, matching);
+        g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE),
+                          closest_free_node->id,
+                          predecessor, matching);
         g.update_potentials();
     }
 }
@@ -208,9 +210,9 @@ local::BipCompGraph::net_score_over_new_augmenting_path(int32_t s,
     bool new_path = true;
     for (int i = t; pred[i] != s; i = pred[i]) {
         if (new_path) {
-            new_score += get_weight(i, pred[i], matching);
+            new_score += get_weight(i, pred[i], true);
         } else {
-            old_score += get_weight(i, pred[i], matching);
+            old_score += get_weight(i, pred[i], matching[i] == pred[i]);
         }
         new_path = !new_path;
     }
@@ -218,7 +220,7 @@ local::BipCompGraph::net_score_over_new_augmenting_path(int32_t s,
 }
 
 int32_t local::BipCompGraph::get_weight_johnson(int32_t u, int32_t v, std::vector<int32_t> &matching) {
-    return get_weight(u, v, matching) - (nodes[v]._potential - nodes[u]._potential);
+    return get_weight(u, v, matching[u] == v) - (nodes[v]._potential - nodes[u]._potential);
 }
 
 void local::BipCompGraph::update_potentials() {
@@ -233,10 +235,10 @@ int32_t local::BipCompGraph::get_weight_raw(int32_t u, int32_t v) {
     return edges[(v - nodes_count / 2) * nodes_count / 2 + u]._w;
 }
 
-int32_t local::BipCompGraph::get_weight(int32_t u, int32_t v, std::vector<int32_t> &current_matching) {
+int32_t local::BipCompGraph::get_weight(int32_t u, int32_t v, bool matched) {
     assert((u < nodes_count / 2 && v >= nodes_count / 2) || (u >= nodes_count / 2 && v < nodes_count / 2));
     if (u >= nodes_count / 2)
         std::swap(u, v);
     int32_t value = edges[(v - nodes_count / 2) * nodes_count / 2 + u]._w;
-    return current_matching[u] == v ? value : -value;
+    return matched ? value : -value;
 }

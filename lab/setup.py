@@ -1,9 +1,9 @@
-import subprocess
+import subprocess, sys
 
 bin_file_name = "minPerfMatchWeight"
 destination_bin_folder = "bin"
 build_folder = "build"
-build_type = "Release"
+build_type = sys.argv[1]
 
 print(f"[Generating binaries from source at '{build_folder+'/'+build_type}']")
 command = f"cmake ../ -DCMAKE_BUILD_TYPE={build_type} -B{build_folder+'/'+build_type} && cmake --build {build_folder+'/'+build_type}"
