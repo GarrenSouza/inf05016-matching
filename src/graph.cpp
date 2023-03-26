@@ -12,7 +12,7 @@ local::BipCompGraph::BipCompGraph(std::istream &in, std::function<int32_t(int32_
 
     std::string line, dummy;
 
-    std::cin >> n;
+    in >> n;
 
     nodes_count = 2 * n;
     edges_count = n * n;
@@ -54,7 +54,8 @@ std::ostream &operator<<(std::ostream &os, const local::vertex &dt) {
     return os;
 }
 
-local::vertex *local::BipCompGraph::get_augmenting_path_end_node(std::vector<int32_t> &pred, std::vector<int> &match) {
+local::vertex *local::BipCompGraph::get_augmenting_path_end_node(std::vector<int32_t> &pred, std::vector<int> &match,
+                                                                 uint64_t &interchanges) {
 
     local::MinKHeap<vertex> pq(4);
 
@@ -99,7 +100,6 @@ local::vertex *local::BipCompGraph::get_augmenting_path_end_node(std::vector<int
                         decrease_key(u->id, neighbour);
                 break;
             case Partition::T:
-
                 if (!validNodeIndex(match[u->id])) {
                     if (!closest_free_node_in_T ||
                         nodes[u->id].key < nodes[closest_free_node_in_T->id].key) {
@@ -114,7 +114,7 @@ local::vertex *local::BipCompGraph::get_augmenting_path_end_node(std::vector<int
                 throw std::runtime_error(ss.str());
         }
     }
-
+    interchanges = pq.interchanges_performed_so_far();
     return closest_free_node_in_T;
 }
 
@@ -131,7 +131,7 @@ local::BipCompGraph::Partition local::BipCompGraph::getPartition(int n) const {
     throw std::runtime_error(ss.str());
 }
 
-void local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
+uint64_t local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
 
     BipCompGraph &g = *this;
 
@@ -139,7 +139,8 @@ void local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
 
     std::vector<int32_t> predecessor(g.nodes_count, static_cast<int32_t>(MagicNodes::NULL_NODE));
 
-    while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching)) &&
+    uint64_t interchanges , sum = 0;
+    while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching, interchanges)) &&
            g.net_score_over_new_augmenting_path(static_cast<int32_t>(MagicNodes::NULL_NODE),
                                                 closest_free_node->id,
                                                 predecessor, matching) > 0) {
@@ -148,7 +149,10 @@ void local::BipCompGraph::getMaximumMatching(std::vector<int32_t> &matching) {
                           predecessor,
                           matching);
         g.update_potentials();
+        sum += interchanges;
     }
+
+    return sum;
 }
 
 void local::BipCompGraph::getMaximumPerfectMatching(std::vector<int32_t> &matching) {
@@ -156,10 +160,10 @@ void local::BipCompGraph::getMaximumPerfectMatching(std::vector<int32_t> &matchi
     BipCompGraph &g = *this;
 
     vertex *closest_free_node;
-
+    uint64_t interchanges = 0;
     std::vector<int32_t> predecessor(nodes_count, static_cast<int32_t>(MagicNodes::NULL_NODE));
 
-    while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching))) {
+    while ((closest_free_node = g.get_augmenting_path_end_node(predecessor, matching, interchanges))) {
         g.update_matching(static_cast<int32_t>(MagicNodes::NULL_NODE),
                           closest_free_node->id,
                           predecessor,

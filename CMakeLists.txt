@@ -26,3 +26,9 @@ add_executable(maxMatchWeight ${maxMatchWeight_SOURCES})
 set_property(TARGET maxMatchWeight PROPERTY CXX_STANDARD 20)
 target_include_directories(maxMatchWeight PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(maxMatchWeight matching)
+
+set(graph_generator_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/test_case_generator.cpp")
+add_executable(graph_generator ${graph_generator_SOURCES})
+set_property(TARGET graph_generator PROPERTY CXX_STANDARD 20)
+target_include_directories(graph_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

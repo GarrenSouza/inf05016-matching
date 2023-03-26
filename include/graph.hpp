@@ -42,7 +42,7 @@ namespace local {
 
         explicit BipCompGraph(std::istream &in, std::function<int32_t(int32_t)> &t);
 
-        void getMaximumMatching(std::vector<int> &matching);
+        uint64_t getMaximumMatching(std::vector<int> &matching);
 
         void getMaximumPerfectMatching(std::vector<int> &matching);
 
@@ -62,7 +62,8 @@ namespace local {
 
     private:
 
-        local::vertex *get_augmenting_path_end_node(std::vector<int32_t> &pred, std::vector<int> &match);
+        local::vertex *get_augmenting_path_end_node(std::vector<int32_t> &pred, std::vector<int> &match,
+                                                    uint64_t &interchanges);
 
         int32_t net_score_over_new_augmenting_path(int32_t s,
                                                    int32_t t,

@@ -5,13 +5,13 @@ input_file_extension = "dat"
 output_file_extension = "res"
 output_files_folder = "./results"
 binaries_folder = "./bin"
-binary_name = "minPerfMatchWeight"
+binary_name = "maxMatchWeight"
 
 input_files = os.listdir(input_files_folder)
 commands = []
 input_files.sort()
 for test in input_files:
-    command = f"{binaries_folder}/{binary_name} < {input_files_folder}/{test} > {output_files_folder}/{test.replace(input_file_extension, output_file_extension)}"
+    command = f"{binaries_folder}/{binary_name} {input_files_folder}/{test} >> {output_files_folder}/summary.csv"
     commands.append(command)
 
 i = 0
